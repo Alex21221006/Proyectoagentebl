@@ -15,6 +15,25 @@ def _bearer():
     return {"Accept": "application/json", "Authorization": f"Bearer {TOKEN}"}
 
 
+def _get_json_body(kw):
+    """
+    Odoo 19 ya no expone request.jsonrequest.
+    - Si type='json', Odoo ya parsea el body y lo entrega en **kw.
+    - Si viene vacío, intentamos leer el JSON crudo desde httprequest.
+    """
+    if kw:
+        return kw
+    data = {}
+    try:
+        httpreq = getattr(request, "httprequest", None)
+        if httpreq is not None and hasattr(httpreq, "get_json"):
+            data = httpreq.get_json(silent=True) or {}
+    except Exception:
+        _logger.exception("No se pudo parsear JSON del request")
+        data = {}
+    return data or {}
+
+
 class AgenteMultibancoBL(http.Controller):
 
     # ===== PÁGINA PRINCIPAL =====
@@ -34,14 +53,18 @@ class AgenteMultibancoBL(http.Controller):
     )
     def api_dni(self, **kw):
         """
-        Recibe JSON: { "numero": "72951012" }
+        Recibe JSON:
+          { "numero": "72951012" }
+        o también aceptamos:
+          { "dni": "72951012" }
+
         Devuelve JSON normalizado con nombre completo, etc.
         """
-        data = request.jsonrequest or {}
-        numero = (data.get("numero") or "").strip()
+        data = _get_json_body(kw)
 
+        numero = (data.get("numero") or data.get("dni") or "").strip()
         if not numero:
-            return {"error": "Falta campo 'numero'."}
+            return {"error": "Falta campo 'numero' o 'dni'."}
 
         # --- MODO DEMO ---
         if os.getenv("MOCK_MODE", "0") == "1":
@@ -136,11 +159,11 @@ class AgenteMultibancoBL(http.Controller):
         csrf=False,
     )
     def api_ruc(self, **kw):
-        data = request.jsonrequest or {}
-        numero = (data.get("numero") or "").strip()
+        data = _get_json_body(kw)
+        numero = (data.get("numero") or data.get("ruc") or "").strip()
 
         if not numero:
-            return {"error": "Falta campo 'numero'."}
+            return {"error": "Falta campo 'numero' o 'ruc'."}
 
         if MOCK_MODE:
             return {
@@ -191,7 +214,7 @@ class AgenteMultibancoBL(http.Controller):
           "createdAt": 1730000000000
         }
         """
-        data = request.jsonrequest or {}
+        data = _get_json_body(kw)
 
         vals = {
             "date": data.get("date"),
