@@ -154,47 +154,60 @@ document.addEventListener('click', async (ev) => {
     return;
   }
 
-  try {
+    try {
     const res = await fetch(`${API_BASE}/api/dni`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ numero: dni }),
-    credentials: "include" // usa la sesión del usuario Odoo
-  });
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ numero: dni }), // el backend acepta "numero"
+      credentials: "include" // usa la sesión del usuario Odoo
+    });
 
-  let data = null;
-  try { data = await res.json(); } catch (_) {}
-
-  // Manejo de errores más amigable
-  if (!res.ok || data?.error) {
-    let msg = null;
-
-    if (!res.ok) {
-      msg = `Error del backend (${res.status}). Inténtalo más tarde.`;
-    } else if (data?.error) {
-      if (typeof data.error === "string") {
-        msg = data.error;
-      } else if (typeof data.error.message === "string") {
-        msg = data.error.message;
-      } else {
-        msg = "Ocurrió un error al consultar el DNI.";
-      }
+    // 1) Leemos el JSON crudo
+    let raw = null;
+    try {
+      raw = await res.json();
+    } catch (_) {
+      raw = null;
     }
 
-    alert(msg);
-    return;
-  }
+    // 2) Odoo (type='json') envuelve en { jsonrpc, id, result }
+    const data =
+      raw && typeof raw === "object" && "result" in raw ? raw.result : raw;
 
+    // 3) Manejo de errores amigable
+    if (!res.ok || data?.error) {
+      let msg = null;
 
+      if (!res.ok) {
+        msg = `Error del backend (${res.status}). Inténtalo más tarde.`;
+      } else if (data?.error) {
+        if (typeof data.error === "string") {
+          msg = data.error;
+        } else if (typeof data.error.message === "string") {
+          msg = data.error.message;
+        } else {
+          msg = "Ocurrió un error al consultar el DNI.";
+        }
+      }
+
+      alert(msg);
+      return;
+    }
+
+    // 4) Campo donde pondremos el nombre
     const nameField = inputId.includes("Solicitante")
       ? document.getElementById("nomSolicitante")
       : document.getElementById("nomBeneficiario");
 
+    if (!nameField) return;
+
+    // 5) Asignar nombre completo
     if (data?.nombreCompleto) {
       nameField.value = data.nombreCompleto;
     } else {
-      const posible =
-        `${data?.apellidoPaterno || ""} ${data?.apellidoMaterno || ""} ${data?.nombres || ""}`.trim();
+      const posible = `${data?.apellidoPaterno || ""} ${
+        data?.apellidoMaterno || ""
+      } ${data?.nombres || ""}`.trim();
       nameField.value = posible || "";
       if (!nameField.value) {
         alert("No se encontró información para ese DNI.");
@@ -202,16 +215,18 @@ document.addEventListener('click', async (ev) => {
       }
     }
 
-    // Memoriza para autocompletar la próxima vez
+    // 6) Memoriza para autocompletar la próxima vez
     if (nameField.value) {
       PEOPLE[dni] = nameField.value.trim();
       saveJSON(LS.peopleKey, PEOPLE);
     }
-
   } catch (err) {
     console.error(err);
-    alert("No fue posible contactar al backend. Verifica la URL configurada en API_BASE.");
+    alert(
+      "No fue posible contactar al backend. Verifica la URL configurada en API_BASE."
+    );
   }
+
 });
 
 
