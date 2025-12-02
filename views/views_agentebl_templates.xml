@@ -1,22 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+
     <!-- Página principal del Agente Multibanco B&L -->
     <template id="agente_bl_page"
-              name="Agente Multibanco B&amp;L"
-              inherit_id="website.page">
-        <template id="agente_bl_header_fix" inherit_id="website.page">
-            <xpath expr="//a[contains(@class,'btn')][contains(text(),'Inicia sesión')]" position="attributes">
-                <attribute name="href">/web/login</attribute>
-            </xpath>
+              name="Agente Multibanco B&amp;L">
 
-            <xpath expr="//a[contains(text(),'Contáctanos')]" position="attributes">
-                <attribute name="href">/web/login</attribute>
-            </xpath>
-        </template>
-
-
-        <!-- Reemplazamos el <main> del layout del website -->
-        <xpath expr="//main" position="inside">
-
+        <!-- Usamos el layout estándar de Odoo, sin modificarlo -->
+        <t t-call="website.layout">
             <main id="agente-multibanco-bl" class="o_container">
 
                 <!-- Título de la pestaña -->
@@ -40,19 +30,19 @@
                             </label>
 
                             <div class="remember-row">
-                              <label class="check">
-                                <input type="checkbox" id="rememberUser" /> Recordar usuario
-                              </label>
+                                <label class="check">
+                                    <input type="checkbox" id="rememberUser" /> Recordar usuario
+                                </label>
 
-                              <label class="check">
-                                <input type="checkbox" id="rememberPass" /> Recordar contraseña
-                              </label>
+                                <label class="check">
+                                    <input type="checkbox" id="rememberPass" /> Recordar contraseña
+                                </label>
                             </div>
 
                             <button class="btn primary" type="submit">Iniciar sesión</button>
                         </form>
 
-                        <!-- Enlace para entrar al panel Odoo -->
+                        <!-- Enlace para entrar al panel Odoo REAL -->
                         <div class="admin-link" style="margin-top: 16px; text-align: center;">
                             <a href="/web/login?redirect=/web"
                                target="_blank"
@@ -279,6 +269,6 @@
                 </script>
 
             </main>
-        </xpath>
+        </t>
     </template>
 </odoo>
