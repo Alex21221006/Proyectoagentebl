@@ -175,37 +175,42 @@ small{display:block; margin-top:4px; color:var(--muted); opacity:.8}
   /* left y top los setea el JS según el botón, no pongas transform */
 }
 
-/* ===== Ajustes login: recordar usuario/contraseña ===== */
+/* ===== Checkboxes del login (Recordar usuario / Recordar contraseña) ===== */
 
-/* Fila específica para los checkboxes del login */
-.login .row.remember {
+/* Contenedor de ambos checkboxes */
+.login .remember-row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
-  gap: 48px;              /* separación entre los dos checkboxes */
-  margin-top: 10px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 0 4px;
+  gap: 48px;   /* separación exacta entre ambos */
 }
 
-/* Cada checkbox con su texto debajo */
-.login .row.remember .check {
+/* Cada item (checkbox + texto debajo) */
+.login .remember-row .check {
   display: flex;
-  flex-direction: column; /* checkbox arriba, texto abajo */
+  flex-direction: column; /* checkbox arriba, texto debajo */
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  font-size: 0.8rem;
+  cursor: pointer;
   color: var(--muted);
-}
-
-/* El texto “Recordar usuario / Recordar contraseña” */
-.login .row.remember .check-text {
-  display: block;
-  line-height: 1.1;
+  font-size: 0.8rem;
   text-align: center;
 }
 
-/* Tamaño del checkbox para que no se deforme con estilos de Odoo */
-.login .row.remember .check input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
+/* Checkbox ajustado */
+.login .remember-row .check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
   margin: 0;
+  cursor: pointer;
+}
+
+/* Etiqueta del texto */
+.login .remember-row .check-text {
+  display: block;
+  line-height: 1.1;
 }

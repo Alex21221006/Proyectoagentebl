@@ -28,21 +28,16 @@
                                 <input type="password" id="lgPass" placeholder="12345678" required="required"/>
                             </label>
 
-                            <div class="row remember">
+                            <div class="remember-row">
                               <label class="check">
-                                <input type="checkbox" id="rememberUser" />
-                                <span class="check-text">
-                                  Recordar<br/>usuario
-                                </span>
+                                <input type="checkbox" id="rememberUser" /> Recordar usuario
                               </label>
 
                               <label class="check">
-                                <input type="checkbox" id="rememberPass" />
-                                <span class="check-text">
-                                  Recordar<br/>contraseña
-                                </span>
+                                <input type="checkbox" id="rememberPass" /> Recordar contraseña
                               </label>
                             </div>
+
 
 
                             <button class="btn primary" type="submit">Iniciar sesión</button>
