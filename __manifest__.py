@@ -9,12 +9,17 @@
         "views/agent_receipt_views.xml",
         "views/agent_menu.xml",
     ],
-    'assets': {
+'assets': {
+    'web.assets_frontend': [
+        'agentemultibancobl/static/src/css/styles.css',
+        'agentemultibancobl/static/src/js/script.js',
+    ],
     'website.assets_frontend': [
         'agentemultibancobl/static/src/css/styles.css',
         'agentemultibancobl/static/src/js/script.js',
     ],
 },
+
 
     "installable": True,
     "application": True,
