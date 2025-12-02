@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data noupdate="0">
 
-        <!-- Menú principal del backend -->
-        <menuitem 
-            id="menu_agente_multibanco"
-            name="Agente Multibanco"
-            sequence="10"
-            icon="fa fa-credit-card"
-        />
+    <!-- Menú principal del backend -->
+    <menuitem 
+        id="menu_agente_multibanco"
+        name="Agente Multibanco"
+        sequence="10"
+        icon="fa fa-credit-card"
+    />
 
-        <!-- Submenú que abre la lista de boletas -->
-        <menuitem
-            id="menu_agent_receipts"
-            name="Boletas Registradas"
-            parent="menu_agente_multibanco"
-            action="action_agent_receipts"
-            sequence="1"
-        />
+    <!-- Submenú que abre la lista de boletas -->
+    <menuitem
+        id="menu_agent_receipts"
+        name="Boletas Registradas"
+        parent="menu_agente_multibanco"
+        action="action_agent_receipts"
+        sequence="1"
+    />
 
-    </data>
 </odoo>
