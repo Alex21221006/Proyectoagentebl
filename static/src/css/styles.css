@@ -174,3 +174,26 @@ small{display:block; margin-top:4px; color:var(--muted); opacity:.8}
   top: auto;
   /* left y top los setea el JS según el botón, no pongas transform */
 }
+
+/* ===== Ajustes login: recordar usuario/contraseña ===== */
+
+#loginView .row.between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;              /* separación entre los dos labels */
+  flex-wrap: wrap;        /* por si la pantalla es muy chica */
+}
+
+#loginView label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;               /* espacio entre el checkbox y el texto */
+  font-size: 0.8rem;
+  color: var(--muted, #a0a0b5);
+  cursor: pointer;
+}
+
+#loginView label.check input[type="checkbox"] {
+  margin: 0;
+}
