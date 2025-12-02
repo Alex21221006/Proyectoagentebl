@@ -38,10 +38,18 @@
                               </label>
                             </div>
 
-
-
                             <button class="btn primary" type="submit">Iniciar sesión</button>
                         </form>
+
+                        <!-- Enlace para entrar al panel Odoo -->
+                        <div class="admin-link" style="margin-top: 16px; text-align: center;">
+                            <a href="/web/login?redirect=/web"
+                               target="_blank"
+                               style="color:#00e0ff; text-decoration:underline; font-size:0.9rem;">
+                                ← Ingresar al panel Odoo (administrador)
+                            </a>
+                        </div>
+
                     </div>
                 </section>
 
