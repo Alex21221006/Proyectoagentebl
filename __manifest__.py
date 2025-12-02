@@ -10,10 +10,10 @@
         "views/agent_menu.xml",    
     ],
     "assets": {
-        "web.assets_frontend": [
-            "moduloagentebl/static/src/css/styles.css",
-            "moduloagentebl/static/src/js/script.js",
-        ],
+    "web.assets_frontend": [
+        "agentemultibancobl/static/src/css/styles.css",
+        "agentemultibancobl/static/src/js/script.js",
+    ],
     },
     "installable": True,
     "application": True,
