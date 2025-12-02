@@ -17,10 +17,12 @@ def _bearer():
 
 class AgenteMultibancoBL(http.Controller):
 
-    # ===== Página principal =====
+    # ===== PÁGINA PRINCIPAL =====
     @http.route('/agente_multibanco', type='http', auth='user', website=True)
     def agente_multibanco_page(self, **kw):
-        return request.render('moduloagentebl.agente_bl_page', {})
+        # OJO: el nombre del módulo en el servidor es "agentemultibancobl"
+        # y el id del template es "agente_bl_page"
+        return request.render('agentemultibancobl.agente_bl_page', {})
 
     # ===== API: DNI =====
     @http.route(
@@ -170,7 +172,24 @@ class AgenteMultibancoBL(http.Controller):
     )
     def api_receipt(self, **kw):
         """
-        Recibe un JSON como el que arma tu JS.
+        Recibe un JSON como el que arma tu JS:
+
+        {
+          "id": "uuid",
+          "date": "2025-12-02",
+          "bank": "...",
+          "operator": "ManuelBL",
+          "movement": "...",
+          "solicitante": { "dni": "...", "nombre": "..." },
+          "beneficiario": { "dni": "...", "nombre": "..." },
+          "account": "...",
+          "description": "...",
+          "amount": 100,
+          "fee": 2,
+          "total": 102,
+          "cancelled": false,
+          "createdAt": 1730000000000
+        }
         """
         data = request.jsonrequest or {}
 
@@ -185,16 +204,13 @@ class AgenteMultibancoBL(http.Controller):
             "description": data.get("description"),
         }
 
-        # Operador: intenta buscar el usuario por login (ej. "ManuelBL")
+        # Operador (login → res.users)
         operator_login = (data.get("operator") or "").strip()
         if operator_login:
             user = request.env["res.users"].sudo().search(
                 [("login", "=", operator_login)], limit=1
             )
-            if user:
-                vals["operator_id"] = user.id
-            else:
-                vals["operator_id"] = request.env.user.id
+            vals["operator_id"] = user.id if user else request.env.user.id
         else:
             vals["operator_id"] = request.env.user.id
 
