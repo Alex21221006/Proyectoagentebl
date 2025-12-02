@@ -7,16 +7,21 @@
         "data/ir_sequence.xml",
         "views/views_agentebl_templates.xml",
         "views/agent_receipt_views.xml",
-        "views/agent_menu.xml",    
+        "views/agent_menu.xml",
     ],
     "assets": {
-    "web.assets_frontend": [
-        "agentemultibancobl/static/src/css/styles.css",
-        "agentemultibancobl/static/src/js/script.js",
-    ],
+        "web.assets_frontend": [
+            "agentemultibancobl/static/src/css/styles.css",
+            "agentemultibancobl/static/src/js/script.js",
+        ],
+        "website.assets_frontend": [
+            "agentemultibancobl/static/src/css/styles.css",
+            "agentemultibancobl/static/src/js/script.js",
+        ],
     },
     "installable": True,
     "application": True,
 }
+
 
 
