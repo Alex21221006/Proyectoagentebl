@@ -3,6 +3,16 @@
     <template id="agente_bl_page"
               name="Agente Multibanco B&amp;L"
               inherit_id="website.layout">
+        <template id="agente_bl_header_fix" inherit_id="website.layout">
+            <xpath expr="//a[contains(@class,'btn')][contains(text(),'Inicia sesión')]" position="attributes">
+                <attribute name="href">/web/login</attribute>
+            </xpath>
+
+            <xpath expr="//a[contains(text(),'Contáctanos')]" position="attributes">
+                <attribute name="href">/web/login</attribute>
+            </xpath>
+        </template>
+
 
         <!-- Reemplazamos el <main> del layout del website -->
         <xpath expr="//main" position="replace">
