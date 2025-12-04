@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
+    <data>
     <!-- Página principal del Agente Multibanco B&L -->
     <template id="agente_bl_page"
               name="Agente Multibanco B&amp;L"
@@ -274,4 +274,5 @@
             </main>
         </t>
     </template>
+    </data>
 </odoo>
