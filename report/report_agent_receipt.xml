@@ -1,70 +1,123 @@
-<template id="report_agent_receipt">
-    <t t-call="web.basic_layout">
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
 
-        <!-- Contenedor obligatorio para permitir adjuntos -->
-        <div class="page"
-             t-att-data-oe-model="o._name"
-             t-att-data-oe-id="o.id">
+    <!-- Acción de reporte PDF para agent.receipt -->
+    <record id="action_report_agent_receipt" model="ir.actions.report">
+        <field name="name">Boleta Agente Multibanco</field>
+        <field name="model">agent.receipt</field>
+        <field name="report_type">qweb-pdf</field>
 
+        <!-- nombre técnico del template qweb -->
+        <field name="report_name">moduloagentebl.report_agent_receipt</field>
+        <field name="report_file">moduloagentebl.report_agent_receipt</field>
+
+        <field name="print_report_name">
+            (object.name or 'Boleta').replace('/', '_')
+        </field>
+
+        <!-- Guarda el PDF en la bdd como adjunto la primera vez -->
+        <field name="attachment_use">True</field>
+        <field name="attachment">
+            (object.name or 'Boleta').replace('/', '_') + '.pdf'
+        </field>
+    </record>
+
+    <!-- Template QWeb del PDF -->
+    <template id="report_agent_receipt">
+        <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="o">
+                <!-- Contenedor principal con data-oe-model e id (requerido para adjuntos) -->
+                <div class="page"
+                     t-att-data-oe-model="o._name"
+                     t-att-data-oe-id="o.id">
 
-                <h2 style="text-align:center;">
-                    Agente Multibanco B&amp;L
-                </h2>
+                    <h2 style="text-align:center;">
+                        Agente Multibanco B&amp;L
+                    </h2>
 
-                <p style="text-align:center; font-size:12px;">
-                    <t t-esc="o.company_id.name or 'Mi Empresa'"/>
-                </p>
+                    <p style="text-align:center; font-size:12px;">
+                        <t t-esc="o.company_id.name or 'Mi Empresa'"/>
+                    </p>
 
-                <hr/>
+                    <hr/>
 
-                <p><strong>Boleta:</strong> <t t-esc="o.name"/></p>
-                <p><strong>Fecha:</strong> <t t-esc="o.date"/></p>
-                <p><strong>Operador:</strong> <t t-esc="o.operator_id.name"/></p>
+                    <p>
+                        <strong>Boleta:</strong>
+                        <t t-esc="o.name or 'Nuevo'"/>
+                    </p>
+                    <p>
+                        <strong>Fecha:</strong>
+                        <t t-esc="o.date"/>
+                    </p>
+                    <p>
+                        <strong>Operador:</strong>
+                        <t t-esc="o.operator_id.name"/>
+                    </p>
 
-                <hr/>
+                    <hr/>
 
-                <p><strong>Banco / Red:</strong> <t t-esc="o.bank"/></p>
-                <p><strong>Tipo de movimiento:</strong> <t t-esc="o.movement"/></p>
-                <p><strong>N° cuenta / N° celular:</strong> <t t-esc="o.account or ''"/></p>
+                    <p>
+                        <strong>Banco / Red:</strong>
+                        <t t-esc="o.bank"/>
+                    </p>
+                    <p>
+                        <strong>Tipo de movimiento:</strong>
+                        <t t-esc="o.movement"/>
+                    </p>
+                    <p>
+                        <strong>N° cuenta / N° celular:</strong>
+                        <t t-esc="o.account or ''"/>
+                    </p>
 
-                <hr/>
+                    <hr/>
 
-                <p><strong>Solicitante</strong></p>
-                <p>DNI: <t t-esc="o.solicitante_dni or ''"/></p>
-                <p>Nombre: <t t-esc="o.solicitante_nombre or ''"/></p>
+                    <p><strong>Solicitante</strong></p>
+                    <p>
+                        DNI:
+                        <t t-esc="o.solicitante_dni or ''"/>
+                    </p>
+                    <p>
+                        Nombre:
+                        <t t-esc="o.solicitante_nombre or ''"/>
+                    </p>
 
-                <p><strong>Beneficiario</strong></p>
-                <p>DNI: <t t-esc="o.beneficiario_dni or ''"/></p>
-                <p>Nombre: <t t-esc="o.beneficiario_nombre or ''"/></p>
+                    <p><strong>Beneficiario</strong></p>
+                    <p>
+                        DNI:
+                        <t t-esc="o.beneficiario_dni or ''"/>
+                    </p>
+                    <p>
+                        Nombre:
+                        <t t-esc="o.beneficiario_nombre or ''"/>
+                    </p>
 
-                <hr/>
+                    <hr/>
 
-                <p>
-                    <strong>Monto:</strong>
-                    <span t-field="o.amount"
-                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </p>
+                    <p>
+                        <strong>Monto:</strong>
+                        <span t-field="o.amount"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                    </p>
+                    <p>
+                        <strong>Comisión:</strong>
+                        <span t-field="o.fee"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                    </p>
+                    <p>
+                        <strong>Total:</strong>
+                        <span t-field="o.total"
+                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                    </p>
 
-                <p>
-                    <strong>Comisión:</strong>
-                    <span t-field="o.fee"
-                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </p>
+                    <hr/>
 
-                <p>
-                    <strong>Total:</strong>
-                    <span t-field="o.total"
-                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
-                </p>
+                    <p style="font-size:10px; text-align:center;">
+                        Gracias por su operación.
+                    </p>
 
-                <hr/>
-
-                <p style="font-size:10px; text-align:center;">
-                    Gracias por su operación.
-                </p>
-
+                </div>
             </t>
-        </div>
-    </t>
-</template>
+        </t>
+    </template>
+
+</odoo>
