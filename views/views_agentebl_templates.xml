@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    
+
     <!-- Página principal del Agente Multibanco B&L -->
     <template id="agente_bl_page"
               name="Agente Multibanco B&amp;L"
               page="True">
 
-        <!-- Usamos el layout estándar de Odoo, sin modificarlo -->
-       <t t-call="website.layout">
-
+        <!-- Usamos el layout estándar del Website -->
+        <t t-call="website.layout">
 
             <!-- Título de la pestaña -->
             <t t-set="title">Agente Multibanco B&amp;L</t>
@@ -274,5 +273,4 @@
             </main>
         </t>
     </template>
-    
 </odoo>
