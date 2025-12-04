@@ -23,7 +23,7 @@ class AgentReceipt(models.Model):
 
     # ---------------------------
     # Banco / Red y Tipo de movimiento
-    # (ahora como Selection => aparecen como lista desplegable)
+    # (Selection => lista desplegable)
     # ---------------------------
     bank = fields.Selection(
         [
@@ -41,11 +41,11 @@ class AgentReceipt(models.Model):
 
     movement = fields.Selection(
         [
-            ("deposit", "Depósito"),
-            ("withdrawal", "Retiro"),
-            ("payment", "Pago de servicio"),
-            ("transfer", "Transferencia"),
-            ("other", "Otros"),
+        ("deposit", "Depósito"),
+        ("withdrawal", "Retiro"),
+        ("payment", "Pago de servicio"),
+        ("transfer", "Transferencia"),
+        ("other", "Otros"),
         ],
         string="Tipo de movimiento",
         required=True,
@@ -60,7 +60,7 @@ class AgentReceipt(models.Model):
 
     account = fields.Char(string="N° cuenta / N° celular")
     description = fields.Text(string="Descripción")
-    cancelled = fields.Boolean(string="Anulado")
+    cancelled = fields.Boolean(string="Anulado", default=False)
 
     # ---------------------------
     # Datos del solicitante
@@ -86,11 +86,13 @@ class AgentReceipt(models.Model):
     amount = fields.Monetary(
         string="Monto",
         currency_field="currency_id",
+        default=0.0,
     )
 
     fee = fields.Monetary(
         string="Comisión",
         currency_field="currency_id",
+        default=0.0,
     )
 
     total = fields.Monetary(
