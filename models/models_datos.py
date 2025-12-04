@@ -1,20 +1,18 @@
-# -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
+from odoo import models, fields, api
 
 
 class AgentReceipt(models.Model):
     _name = "agent.receipt"
     _description = "Boleta / Movimiento Agente Multibanco"
-    _order = "date desc, name desc"
 
-    # =========================
-    # Datos generales
-    # =========================
+    # ---------------------------
+    # Datos generales de la boleta
+    # ---------------------------
     name = fields.Char(
         string="N° Boleta",
         readonly=True,
         copy=False,
-        default=lambda self: _("Nuevo"),
+        default="Nuevo",
     )
 
     date = fields.Date(
@@ -23,33 +21,35 @@ class AgentReceipt(models.Model):
         default=fields.Date.context_today,
     )
 
-    # ---------- AQUÍ VIENE LO IMPORTANTE ----------
-    # Banco / Red como lista desplegable
+    # ---------------------------
+    # Banco / Red y Tipo de movimiento
+    # (ahora como Selection => aparecen como lista desplegable)
+    # ---------------------------
     bank = fields.Selection(
         [
             ("bcp", "BCP"),
-            ("bbva", "BBVA"),
             ("interbank", "Interbank"),
+            ("bbva", "BBVA"),
             ("scotiabank", "Scotiabank"),
             ("yape", "Yape"),
             ("plin", "Plin"),
+            ("otros", "Otros"),
         ],
         string="Banco / Red",
         required=True,
     )
 
-    # Tipo de movimiento como lista desplegable
     movement = fields.Selection(
         [
-            ("deposito", "Depósito"),
-            ("retiro", "Retiro"),
-            ("pago_servicio", "Pago de servicio"),
-            ("transferencia", "Transferencia"),
+            ("deposit", "Depósito"),
+            ("withdrawal", "Retiro"),
+            ("payment", "Pago de servicio"),
+            ("transfer", "Transferencia"),
+            ("other", "Otros"),
         ],
         string="Tipo de movimiento",
         required=True,
     )
-    # ------------------------------------------------
 
     operator_id = fields.Many2one(
         "res.users",
@@ -58,46 +58,29 @@ class AgentReceipt(models.Model):
         readonly=True,
     )
 
-    account = fields.Char(
-        string="N° cuenta / N° celular",
-    )
+    account = fields.Char(string="N° cuenta / N° celular")
+    description = fields.Text(string="Descripción")
+    cancelled = fields.Boolean(string="Anulado")
 
-    description = fields.Text(
-        string="Descripción",
-    )
+    # ---------------------------
+    # Datos del solicitante
+    # ---------------------------
+    solicitante_dni = fields.Char(string="DNI solicitante")
+    solicitante_nombre = fields.Char(string="Nombre solicitante")
 
-    cancelled = fields.Boolean(
-        string="Anulado",
-        default=False,
-    )
+    # ---------------------------
+    # Datos del beneficiario
+    # ---------------------------
+    beneficiario_dni = fields.Char(string="DNI beneficiario")
+    beneficiario_nombre = fields.Char(string="Nombre beneficiario")
 
-    # =========================
-    # Solicitante
-    # =========================
-    solicitante_dni = fields.Char(
-        string="DNI solicitante",
-    )
-    solicitante_nombre = fields.Char(
-        string="Nombre solicitante",
-    )
-
-    # =========================
-    # Beneficiario
-    # =========================
-    beneficiario_dni = fields.Char(
-        string="DNI beneficiario",
-    )
-    beneficiario_nombre = fields.Char(
-        string="Nombre beneficiario",
-    )
-
-    # =========================
+    # ---------------------------
     # Montos
-    # =========================
+    # ---------------------------
     currency_id = fields.Many2one(
         "res.currency",
         string="Moneda",
-        default=lambda self: self.env.company.currency_id,
+        default=lambda self: self.env.company.currency_id.id,
     )
 
     amount = fields.Monetary(
@@ -122,14 +105,3 @@ class AgentReceipt(models.Model):
     def _compute_total(self):
         for rec in self:
             rec.total = (rec.amount or 0.0) + (rec.fee or 0.0)
-
-    # =========================
-    # Secuencia para N° Boleta
-    # =========================
-    @api.model
-    def create(self, vals):
-        if vals.get("name", _("Nuevo")) == _("Nuevo"):
-            vals["name"] = (
-                self.env["ir.sequence"].next_by_code("agent.receipt") or _("Nuevo")
-            )
-        return super(AgentReceipt, self).create(vals)
