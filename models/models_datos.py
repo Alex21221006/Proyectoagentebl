@@ -1,9 +1,16 @@
 from odoo import models, fields, api
-import logging
-import requests
 import os
+import requests
+import logging
 
 _logger = logging.getLogger(__name__)
+
+
+# ============================
+#   Config Decolecta
+# ============================
+DECOLECTA_TOKEN = (os.getenv("DECOLECTA_TOKEN") or "").strip()
+DECOLECTA_DNI_URL = "https://api.decolecta.com/v1/reniec/dni"
 
 
 class AgentReceipt(models.Model):
@@ -11,7 +18,7 @@ class AgentReceipt(models.Model):
     _description = "Boleta / Movimiento Agente Multibanco"
 
     # ---------------------------
-    # Datos generales
+    # Datos generales de la boleta
     # ---------------------------
     name = fields.Char(
         string="N° Boleta",
@@ -27,7 +34,7 @@ class AgentReceipt(models.Model):
     )
 
     # ---------------------------
-    # Banco / Red
+    # Banco / Red y Tipo de movimiento
     # ---------------------------
     bank = fields.Selection(
         [
@@ -37,7 +44,7 @@ class AgentReceipt(models.Model):
             ("scotiabank", "Scotiabank"),
             ("caja_arequipa", "Caja Arequipa"),
             ("caja_cusco", "Caja Cusco"),
-            ("nacion", "Banco de la Nación"),
+            ("banco_nacion", "Banco de la Nación"),
             ("yape", "Yape"),
             ("plin", "Plin"),
             ("bim", "BIM"),
@@ -54,16 +61,13 @@ class AgentReceipt(models.Model):
         required=True,
     )
 
-    # ---------------------------
-    # Tipo de movimiento
-    # ---------------------------
     movement = fields.Selection(
         [
             ("deposit", "Depósito"),
             ("withdrawal", "Retiro"),
-            ("giro", "Giro"),
+            ("money_order", "Giro"),
             ("payment", "Pago"),
-            ("recharge", "Recarga"),
+            ("topup", "Recarga"),
             ("other", "Otros"),
         ],
         string="Tipo de movimiento",
@@ -79,7 +83,7 @@ class AgentReceipt(models.Model):
 
     account = fields.Char(string="N° cuenta / N° celular")
     description = fields.Text(string="Descripción")
-    cancelled = fields.Boolean(string="Anulado", default=False)
+    cancelled = fields.Boolean(string="Anulado")
 
     # ---------------------------
     # Datos del solicitante
@@ -125,55 +129,89 @@ class AgentReceipt(models.Model):
         for rec in self:
             rec.total = (rec.amount or 0.0) + (rec.fee or 0.0)
 
-    # ----------------------------------------------------
-    # AUTORELLENAR DNI CON API DECOLECTA
-    # ----------------------------------------------------
-    def _fetch_dni_decolecta(self, numero):
-        """Consulta la API de Decolecta para obtener nombres."""
-        token = os.getenv("DECOLECTA_TOKEN")
-        if not token:
-            _logger.warning("DECOLECTA_TOKEN no está configurado.")
-            return {}
+    # =====================================================
+    #   Helpers internos para consultar Decolecta
+    # =====================================================
+    def _fetch_dni_from_decolecta(self, dni):
+        """Llama a Decolecta RENIEC/DNI y devuelve dict con nombre completo."""
+        if not DECOLECTA_TOKEN:
+            _logger.warning("DECOLECTA_TOKEN no está configurado en el entorno.")
+            return None
 
-        url = f"https://api.decolecta.com/v1/reniec/dni?numero={numero}"
+        dni = (dni or "").strip()
+        if not dni or len(dni) != 8 or not dni.isdigit():
+            return None
+
+        url = f"{DECOLECTA_DNI_URL}?numero={dni}"
         headers = {
             "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {DECOLECTA_TOKEN}",
         }
 
         try:
-            r = requests.get(url, headers=headers, timeout=12)
-            data = r.json()
-            raw = data.get("data", data)
-
-            nombres = (raw.get("nombres") or "").strip()
-            ap_pat = (raw.get("apellidoPaterno") or "").strip()
-            ap_mat = (raw.get("apellidoMaterno") or "").strip()
-
-            nombre_completo = f"{ap_pat} {ap_mat} {nombres}".strip()
-
-            return {
-                "nombres": nombres,
-                "apellidoPaterno": ap_pat,
-                "apellidoMaterno": ap_mat,
-                "nombreCompleto": nombre_completo,
-            }
+            resp = requests.get(url, headers=headers, timeout=10)
+            data = resp.json()
         except Exception as e:
-            _logger.error(f"Error en consulta DNI Decolecta: {e}")
-        return {}
+            _logger.exception("Error al consultar Decolecta DNI: %s", e)
+            return None
 
-    # AUTORELLENAR solicitante
+        raw = data.get("data", data) if isinstance(data, dict) else {}
+
+        nombres = (
+            raw.get("nombres")
+            or raw.get("first_name")
+            or ""
+        ).strip()
+
+        ap_pat = (
+            raw.get("apellidoPaterno")
+            or raw.get("apellido_paterno")
+            or raw.get("first_last_name")
+            or ""
+        ).strip()
+
+        ap_mat = (
+            raw.get("apellidoMaterno")
+            or raw.get("apellido_materno")
+            or raw.get("second_last_name")
+            or ""
+        ).strip()
+
+        nombre_completo = (
+            raw.get("full_name")
+            or " ".join([ap_pat, ap_mat, nombres])
+        ).strip()
+
+        if not any([nombres, ap_pat, ap_mat, nombre_completo]):
+            return None
+
+        return {
+            "numero": raw.get("document_number", dni),
+            "nombres": nombres,
+            "apellidoPaterno": ap_pat,
+            "apellidoMaterno": ap_mat,
+            "nombreCompleto": nombre_completo,
+        }
+
+    # =====================================================
+    #   ONCHANGE: autocompletar nombres por DNI
+    # =====================================================
     @api.onchange("solicitante_dni")
     def _onchange_solicitante_dni(self):
-        if self.solicitante_dni and len(self.solicitante_dni) == 8:
-            info = self._fetch_dni_decolecta(self.solicitante_dni)
-            if info:
-                self.solicitante_nombre = info["nombreCompleto"]
+        for rec in self:
+            dni = (rec.solicitante_dni or "").strip()
+            rec.solicitante_nombre = False
 
-    # AUTORELLENAR beneficiario
+            info = rec._fetch_dni_from_decolecta(dni)
+            if info:
+                rec.solicitante_nombre = info["nombreCompleto"]
+
     @api.onchange("beneficiario_dni")
     def _onchange_beneficiario_dni(self):
-        if self.beneficiario_dni and len(self.beneficiario_dni) == 8:
-            info = self._fetch_dni_decolecta(self.beneficiario_dni)
+        for rec in self:
+            dni = (rec.beneficiario_dni or "").strip()
+            rec.beneficiario_nombre = False
+
+            info = rec._fetch_dni_from_decolecta(dni)
             if info:
-                self.beneficiario_nombre = info["nombreCompleto"]
+                rec.beneficiario_nombre = info["nombreCompleto"]
