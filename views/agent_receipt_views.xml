@@ -1,11 +1,11 @@
 <odoo>
 
-    <!-- Vista TREE -->
+    <!-- Vista LIST -->
     <record id="view_agent_receipt_list" model="ir.ui.view">
         <field name="name">agent.receipt.list</field>
         <field name="model">agent.receipt</field>
         <field name="arch" type="xml">
-            <tree string="Boletas Registradas">
+            <list>
                 <field name="name"/>
                 <field name="date"/>
                 <field name="bank"/>
@@ -16,12 +16,9 @@
                 <field name="fee"/>
                 <field name="total"/>
                 <field name="cancelled"/>
-            </tree>
+            </list>
         </field>
-
     </record>
-
-
 
     <!-- Vista FORM -->
     <record id="view_agent_receipt_form" model="ir.ui.view">
@@ -74,8 +71,7 @@
     <record id="action_agent_receipts" model="ir.actions.act_window">
         <field name="name">Boletas Registradas</field>
         <field name="res_model">agent.receipt</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
-
 
 </odoo>
