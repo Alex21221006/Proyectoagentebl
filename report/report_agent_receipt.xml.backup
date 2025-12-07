@@ -11,27 +11,18 @@
         <field name="report_name">moduloagentebl.report_agent_receipt</field>
         <field name="report_file">moduloagentebl.report_agent_receipt</field>
 
-        <!-- nombre del archivo descargado -->
         <field name="print_report_name">
             (object.name or 'Boleta').replace('/', '_')
         </field>
-
-        <!-- no crear adjuntos automáticos -->
-        <field name="attachment_use">False</field>
-        <field name="attachment" eval="False"/>
-
-        <!-- enlace correcto al modelo -->
-        <field name="binding_model_id" ref="model_agent_receipt"/>
-        <field name="binding_type">report</field>
     </record>
 
-    <!-- Template QWeb del PDF (simple, 1 doc por página) -->
+    <!-- Template QWeb del PDF -->
     <template id="report_agent_receipt">
         <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="o">
-                <div class="page">
+                <div class="article page" t-att-data-oe-model="'agent.receipt'" t-att-data-oe-id="o.id">
 
-                    <h2 style="text-align:center; margin-top:20px;">
+                    <h2 style="text-align:center;">
                         Agente Multibanco B&amp;L
                     </h2>
 

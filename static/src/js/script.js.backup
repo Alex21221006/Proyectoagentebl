@@ -1,12 +1,3 @@
-// Solo ejecutar si estamos en la página de Agente Multibanco
-(function() {
-  'use strict';
-
-  // Verificar si estamos en la página correcta
-  if (!document.querySelector('#appView') && !document.querySelector('#loginView')) {
-    return;  // No estamos en la página correcta, salir sin ejecutar
-  }
-
 // === CONFIG BACKEND ===
 const API_BASE = "/agente_multibanco";
 
@@ -610,5 +601,3 @@ function generatePDF(r, openOnly=false){
   // inicializa totales al cargar
   computeTotals();
 })();
-
-})(); // Fin del wrapper de seguridad
